@@ -4,15 +4,15 @@ import queryString from 'query-string';
 
 let defaultStyle = {
   color: '#000',
-  'font-family': 'Papyrus'
+  fontFamily: 'Papyrus'
 };
 
 let counterStyle = {...defaultStyle,
   width: "40%",
   display: 'inline-block',
-  'margin-bottom': '20px',
-  'font-size': '20px',
-  'line-height': '30px'
+  marginBottom: '20px',
+  fontSize: '20px',
+  lineHeight: '30px'
 };
 
 class PlaylistCounter extends Component {
@@ -41,7 +41,7 @@ class TotalHours extends Component {
     let isTooLow = totalDurationHours < 40;
     let hoursCounterStyle = {...counterStyle,
       color: isTooLow ? 'red' : 'black',
-      'font-weight': isTooLow ? 'bold' : 'normal'
+      fontWeight: isTooLow ? 'bold' : 'normal'
     }
 
     return (
@@ -58,7 +58,7 @@ class Filter extends Component {
       <div style={{defaultStyle}}>
         <input type="text" onKeyUp={event =>
         this.props.onTextChange(event.target.value)}
-        style={{...defaultStyle, color: 'black', 'font-size': '20px', padding: '10px'}}/>
+        style={{...defaultStyle, color: 'black', fontSize: '20px', padding: '10px'}}/>
       </div>
     );
   }
@@ -72,13 +72,13 @@ class Playlist extends Component {
         display: 'inline-block',
         width: "25%",
         padding: '10px',
-        'background-color': this.props.index % 2 ? '#C0C0C0' : '#808080'}}>
-        <img src={playlist.imageUrl} style={{width: '60px'}}/>
+        backgroundColor: this.props.index % 2 ? '#C0C0C0' : '#808080'}}>
+        <img src={playlist.imageUrl} alt={"Image URL index: " + this.props.index} style={{width: '60px'}}/>
         <h3>{playlist.name}</h3>
-        <ul style={{'margin-top': '10px', 'font-weight': 'bold'}}>
+        <ul style={{marginTop: '10px', fontWeight: 'bold'}}>
           {
             playlist.songs.map(song =>
-              <li style={{'padding-top': '2px'}}>{song.name}</li>
+               <li key={song.name} style={{paddingTop: '2px'}}>{song.name}</li>
           )}
         </ul>
       </div>
@@ -102,9 +102,7 @@ class App extends Component {
       return;
     }
 
-   console.log("Token: ", accessToken);
-
-   fetch('https://developer.spotify.com/v1/me', {
+   fetch('https://api.spotify.com/v1/me', {
      headers: {'Authorization': 'Bearer ' + accessToken}
    }).then(response => response.json())
    .then(data => this.setState({
@@ -113,14 +111,14 @@ class App extends Component {
       }
     }))
 
-    fetch('https://developer.spotify.com/v1/me/playlists', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
+      fetch('https://api.spotify.com/v1/browse/featured-playlists', {
+      headers: {'Authorization': 'Bearer ' + accessToken}
     }).then(response => response.json())
       .then(playlistData => {
-        let playlists = playlistData.items
+        let playlists = playlistData.playlists.items;
         let trackDataPromises = playlists.map(playlist => {
           let responsePromise = fetch(playlist.tracks.href, {
-            headers: { 'Authorization': 'Bearer ' + accessToken }
+            headers: {'Authorization': 'Bearer ' + accessToken}
           })
           let trackDataPromise = responsePromise
           .then(response => response.json())
@@ -168,8 +166,8 @@ class App extends Component {
           this.state.user ?
           <div>
             <h1 style={{...defaultStyle,
-              'font-size': '54px',
-              'margin-top': '5px'
+               fontSize: '54px',
+               marginTop: '5px'
               }}>Spotifood</h1>
             <h2>{this.state.user.name}'s playlist</h2>
             <PlaylistCounter playlists={playlistToShow}/>
@@ -177,13 +175,13 @@ class App extends Component {
             <Filter onTextChange={text => this.setState({filterString: text})}/>
             {
               playlistToShow.map((playlist, i) =>
-                <Playlist playlist={playlist} index={i}/>
+                <Playlist key={i} playlist={playlist} index={i}/>
             )}
           </div> : <button onClick={() => {
             window.location = window.location.href.includes('localhost') ? 'http://localhost:8888/login'
             : 'https://spotifood-backend.herokuapp.com/login' }
           }
-          style={{padding: '', 'font-size': '50px', 'margin-top': '20px'}}>Sign in with Spotify</button>
+          style={{padding: '', fontSize: '50px', marginTop: '20px'}}>Sign in with Spotify</button>
         }
       </div>
     );
