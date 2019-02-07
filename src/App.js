@@ -163,20 +163,21 @@ class App extends Component {
               return {
                 name: item.name,
                 imageUrl: item.images[0].url,
-                songs: item.trackDatas.slice(0, 3).map(trackData => ({
-                  name: trackData.name
-                }))
-              }
-      })
+                songs: item.trackDatas.slice(0, 3)
+                }
+            })
     }))
   }
 
   render() {
     let playlistToShow = this.state.user && this.state.playlists ?
-      this.state.playlists.filter(playlist =>
-      playlist.name.toLowerCase().includes(
+      this.state.playlists.filter(playlist => {
+        let matchesPlaylist = playlist.name.toLowerCase().includes(
         this.state.filterString.toLocaleLowerCase())
-      ) : []
+        let matchesSong = playlist.songs.find(song => song.name.toLowerCase()
+        .includes(this.state.filterString.toLowerCase()))
+        return matchesPlaylist || matchesSong
+      }) : []
 
     return (
       <div className="App">
