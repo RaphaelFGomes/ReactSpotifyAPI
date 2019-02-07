@@ -78,7 +78,8 @@ class Filter extends Component {
     return (
       <div style={{defaultStyle}}>
       <img/>
-        <input type="text"/>
+        <input type="text" onKeyUp={event =>
+        this.props.onTextChange(event.target.value)}/>
       </div>
     );
   }
@@ -105,7 +106,10 @@ class Playlist extends Component {
 class App extends Component {
   constructor() {
     super();
-    this.state = {spotifyServerDate: {}}
+    this.state = {
+      spotifyServerDate: {},
+      filterString: ''
+    }
   }
 
   componentDidMount() {
@@ -119,6 +123,12 @@ class App extends Component {
   }
 
   render() {
+    let playlistToShow = this.state.spotifyServerDate.user ?
+      this.state.spotifyServerDate.user.playlists.filter(playlist =>
+      playlist.name.toLowerCase().includes(
+        this.state.filterString.toLocaleLowerCase())
+      ) : []
+
     return (
       <div className="App">
         {
@@ -126,11 +136,11 @@ class App extends Component {
           <div>
             <h1 style={{...defaultStyle, 'font-size': '54px'}}>Spotifood</h1>
             <h2>{this.state.spotifyServerDate.user.name}'s playlist</h2>
-            <PlaylistCounter playlists={this.state.spotifyServerDate.user.playlists}/>
-            <TotalHours playlists={this.state.spotifyServerDate.user.playlists}/>
-            <Filter/>
+            <PlaylistCounter playlists={playlistToShow}/>
+            <TotalHours playlists={playlistToShow}/>
+            <Filter onTextChange={text => this.setState({filterString: text})}/>
             {
-              this.state.spotifyServerDate.user.playlists.map(playlist =>
+              playlistToShow.map(playlist =>
                 <Playlist playlist={playlist}/>
             )}
           </div> : <h1 style={defaultStyle}>Getting data from Spotify API!</h1>
