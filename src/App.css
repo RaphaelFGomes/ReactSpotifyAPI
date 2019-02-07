@@ -2,7 +2,7 @@ html, body {
   background-color: white;
 }
 
-.App {
-  text-align: center;
+body {
+  padding: 10px;
 }
 

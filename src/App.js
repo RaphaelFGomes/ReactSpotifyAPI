@@ -3,53 +3,24 @@ import './App.css';
 import queryString from 'query-string';
 
 let defaultStyle = {
-  color: '#000'
+  color: '#000',
+  'font-family': 'Papyrus'
 };
 
-let fakeSpotifyPlaylist = {
-  user: {
-    name: 'Raphael',
-    playlists: [
-      {
-        name: 'Grunge',
-        songs: [
-          {name: 'Come as you are', duration: 1345},
-          {name: 'Is that right?', duration: 1236},
-          {name: 'Hello there!', duration: 70000}
-        ]
-      },
-      {
-        name: 'Pop',
-        songs: [
-          {name: 'Overnight', duration: 1345},
-          {name: 'Simple', duration: 1236},
-          {name: 'Love', duration: 70000}
-        ]
-      },
-      {
-        name: 'Dance',
-        songs: [
-          {name: 'Hey you', duration: 1345},
-          {name: 'Bye', duration: 1236},
-          {name: 'Hell', duration: 70000}
-        ]
-      },
-      {
-        name: 'Metal',
-        songs: [
-          {name: 'Plate', duration: 1345},
-          {name: 'Black bird', duration: 1236},
-          {name: 'Long hair', duration: 70000}
-        ]
-      }
-    ]
-  }
+let counterStyle = {...defaultStyle,
+  width: "40%",
+  display: 'inline-block',
+  'margin-bottom': '20px',
+  'font-size': '20px',
+  'line-height': '30px'
 };
 
 class PlaylistCounter extends Component {
   render () {
+    let playlistCounterStyle = counterStyle;
+
     return (
-      <div style={{...defaultStyle, width: "40%", display: 'inline-block'}}>
+      <div style={playlistCounterStyle}>
         <h2>Number of playlists: {this.props.playlists.length}</h2>
       </div>
     );
@@ -66,9 +37,16 @@ class TotalHours extends Component {
         return sum + eachSong.duration;
     }, 0);
 
+    let totalDurationHours = Math.round(totalDuration/60);
+    let isTooLow = totalDurationHours < 40;
+    let hoursCounterStyle = {...counterStyle,
+      color: isTooLow ? 'red' : 'black',
+      'font-weight': isTooLow ? 'bold' : 'normal'
+    }
+
     return (
-      <div style={{...defaultStyle, width: "40%", display: 'inline-block'}}>
-        <h2>Total of hours: {Math.round(totalDuration/60)}</h2>
+      <div style={hoursCounterStyle}>
+        <h2>Total of hours: {totalDurationHours}</h2>
       </div>
     );
   }
@@ -79,7 +57,8 @@ class Filter extends Component {
     return (
       <div style={{defaultStyle}}>
         <input type="text" onKeyUp={event =>
-        this.props.onTextChange(event.target.value)}/>
+        this.props.onTextChange(event.target.value)}
+        style={{...defaultStyle, color: 'black', 'font-size': '20px', padding: '10px'}}/>
       </div>
     );
   }
@@ -89,13 +68,17 @@ class Playlist extends Component {
   render () {
     let playlist = this.props.playlist;
     return (
-      <div style={{...defaultStyle, display: 'inline-block', width: "25%"}}>
+      <div style={{...defaultStyle,
+        display: 'inline-block',
+        width: "25%",
+        padding: '10px',
+        'background-color': this.props.index % 2 ? '#C0C0C0' : '#808080'}}>
         <img src={playlist.imageUrl} style={{width: '60px'}}/>
         <h3>{playlist.name}</h3>
-        <ul>
+        <ul style={{'margin-top': '10px', 'font-weight': 'bold'}}>
           {
             playlist.songs.map(song =>
-              <li>{song.name}</li>
+              <li style={{'padding-top': '2px'}}>{song.name}</li>
           )}
         </ul>
       </div>
@@ -184,14 +167,17 @@ class App extends Component {
         {
           this.state.user ?
           <div>
-            <h1 style={{...defaultStyle, 'font-size': '54px'}}>Spotifood</h1>
+            <h1 style={{...defaultStyle,
+              'font-size': '54px',
+              'margin-top': '5px'
+              }}>Spotifood</h1>
             <h2>{this.state.user.name}'s playlist</h2>
             <PlaylistCounter playlists={playlistToShow}/>
             <TotalHours playlists={playlistToShow}/>
             <Filter onTextChange={text => this.setState({filterString: text})}/>
             {
-              playlistToShow.map(playlist =>
-                <Playlist playlist={playlist}/>
+              playlistToShow.map((playlist, i) =>
+                <Playlist playlist={playlist} index={i}/>
             )}
           </div> : <button onClick={() => {
             window.location = window.location.href.includes('localhost') ? 'http://localhost:8888/login'
