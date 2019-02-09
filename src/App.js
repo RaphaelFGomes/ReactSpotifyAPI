@@ -160,6 +160,10 @@ class App extends Component {
   }
 
   callSpotifyPlaylistService = (filtersTemp) => {
+    if (!filtersTemp) {
+      filtersTemp = this.state.filters;
+    }
+
     let urlFilter = "https://api.spotify.com/v1/browse/featured-playlists";
     let hasAtLeastOne = false;
 
@@ -263,8 +267,8 @@ class App extends Component {
      }
   }
 
-  updateRefreshInterval = () => {
-    const intervalId = setInterval(this._callPlaylistService, 3000);
+  refreshPage = () => {
+    const intervalId = setInterval(this.callSpotifyPlaylistService, 30000);
     this.setState({
       intervalId,
     });
@@ -369,6 +373,8 @@ class App extends Component {
           }
         })
       }))
+
+      this.refreshPage();
   }
 
   render() {
