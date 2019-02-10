@@ -1,137 +1,15 @@
 import React, { Component } from 'react';
 import './App.css';
 import queryString from 'query-string';
-import TextField from '@material-ui/core/TextField';
-import RenderField from './RenderField';
+import PlaylistCounter from './components/PlaylistCounter';
+import TotalHours from './components/TotalHours';
+import Filter from './components/Filter';
+import Playlist from './components/Playlist';
 
-let defaultStyle = {
+let appDefaultStyle = {
   color: '#000',
   fontFamily: 'Papyrus'
 };
-
-let counterStyle = {
-  ...defaultStyle,
-  width: "40%",
-  display: 'inline-block',
-  marginBottom: '20px',
-  fontSize: '20px',
-  lineHeight: '30px'
-};
-
-class PlaylistCounter extends Component {
-  render() {
-    let playlistCounterStyle = counterStyle;
-
-    return (
-      <div style={playlistCounterStyle}>
-        <h2>Number of playlists: {this.props.playlists.length}</h2>
-      </div>
-    );
-  }
-}
-
-class TotalHours extends Component {
-  render() {
-    let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => {
-      return songs.concat(eachPlaylist.songs)
-    }, []);
-
-    let totalDuration = allSongs.reduce((sum, eachSong) => {
-      return sum + eachSong.duration;
-    }, 0);
-
-    let totalDurationHours = Math.round(totalDuration / 60);
-    let isTooLow = totalDurationHours < 40;
-    let hoursCounterStyle = {
-      ...counterStyle,
-      color: isTooLow ? 'red' : 'black',
-      fontWeight: isTooLow ? 'bold' : 'normal'
-    }
-
-    return (
-      <div style={hoursCounterStyle}>
-        <h2>Total of hours: {totalDurationHours}</h2>
-      </div>
-    );
-  }
-}
-
-class Filter extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      filtersFields: []
-    };
-  }
-
-  componentDidMount() {
-    fetch('http://www.mocky.io/v2/5a25fade2e0000213aa90776')
-      .then(response => response.json())
-      .then(data => {
-        this.setState({
-          filtersFields: data.filters
-        })
-      })
-  }
-
-  render() {
-    const { filtersFields } = this.state;
-    const {
-      filterValues,
-      onChangeFilters,
-    } = this.props;
-
-    return (
-      <div>
-        {
-          filtersFields ?
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <TextField
-                id="search"
-                label="Filter playlists by name"
-                onKeyUp={event => this.props.onTextChange(event.target.value)}
-                style={{ marginBottom: '.8em' }} />
-              {
-                filtersFields.map(field => ((
-                  <RenderField
-                    {...field}
-                    key={field.id}
-                    onChange={onChangeFilters}
-                    fieldValues={filterValues}
-                  />
-                )))
-              }
-            </div> : 'Error'
-        }
-      </div>
-    );
-  }
-}
-
-class Playlist extends Component {
-  render() {
-    let playlist = this.props.playlist;
-    return (
-      <div style={{
-        ...defaultStyle,
-        display: 'inline-block',
-        width: "25%",
-        padding: '10px',
-        backgroundColor: this.props.index % 2 ? '#C0C0C0' : '#808080'
-      }}>
-        <img src={playlist.imageUrl} alt={"Image URL index: " + this.props.index} style={{ width: '60px' }} />
-        <h3 style={{ fontWeight: 'bold' }}>{playlist.name}</h3>
-        <ul style={{ marginTop: '10px' }}>
-          {
-            playlist.songs.map(song =>
-              <li key={song.name} style={{ paddingTop: '2px' }}>{song.name}</li>
-            )}
-        </ul>
-      </div>
-    );
-  }
-}
 
 class App extends Component {
   localeTemp = '';
@@ -391,7 +269,7 @@ class App extends Component {
           this.state.user ?
             <div>
               <h1 style={{
-                ...defaultStyle,
+                ...appDefaultStyle,
                 fontSize: '54px',
                 marginTop: '5px'
               }}>Spotifood</h1>
