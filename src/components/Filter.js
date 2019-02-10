@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import TextField from '@material-ui/core/TextField';
 import RenderField from './RenderField';
+import axios from 'axios';
 
 class Filter extends Component {
     constructor(props) {
@@ -12,13 +13,15 @@ class Filter extends Component {
     }
   
     componentDidMount() {
-      fetch('http://www.mocky.io/v2/5a25fade2e0000213aa90776')
-        .then(response => response.json())
-        .then(data => {
-          this.setState({
-            filtersFields: data.filters
-          })
+      axios.get('http://www.mocky.io/v2/5a25fade2e0000213aa90776')
+        .then(response => {
+            this.setState({
+            filtersFields: response.data.filters
+            })
         })
+        .catch(error => {
+            alert("Could not fetch filter values!");
+        });
     }
   
     render() {

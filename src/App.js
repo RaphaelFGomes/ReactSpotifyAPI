@@ -5,6 +5,7 @@ import PlaylistCounter from './components/PlaylistCounter';
 import TotalHours from './components/TotalHours';
 import Filter from './components/Filter';
 import Playlist from './components/Playlist';
+import axios from 'axios';
 
 let appDefaultStyle = {
   color: '#000',
@@ -96,19 +97,17 @@ class App extends Component {
     const stringParsed = queryString.parse(window.location.search);
     let accessToken = stringParsed.access_token;
     if (accessToken) {
-      fetch(urlFilter, {
+      axios.get(urlFilter, {
         headers: { 'Authorization': 'Bearer ' + accessToken }
-      }).then(response => response.json())
-        .then(playlistData => {
-          if (playlistData.playlists) {
-            let playlists = playlistData.playlists.items;
+      }).then(response => {
+          if (response.data.playlists) {
+            let playlists = response.data.playlists.items;
             let trackDataPromises = playlists.map(playlist => {
               let responsePromise = fetch(playlist.tracks.href, {
                 headers: { 'Authorization': 'Bearer ' + accessToken }
               })
-              let trackDataPromise = responsePromise
-                .then(response => response.json())
-              return trackDataPromise
+              let trackDataPromise = responsePromise.then(response => response.json());
+              return trackDataPromise;
             })
             let allTracksDatasPromises =
               Promise.all(trackDataPromises)
@@ -121,9 +120,9 @@ class App extends Component {
                     duration: trackData ? trackData.duration_ms / 1000 : ''
                   }))
               })
-              return playlists
+              return playlists;
             })
-            return playlistsPromise
+            return playlistsPromise;
           } else {
             return [];
           }
@@ -139,9 +138,14 @@ class App extends Component {
               })
             })
           } else {
-            return []
+            return [];
           }
         })
+        .catch(error => {
+          this.setState({
+            playlists: []
+          });
+      });
      }
   }
 
@@ -205,27 +209,30 @@ class App extends Component {
       return;
     }
 
-    fetch('https://api.spotify.com/v1/me', {
+    axios.get('https://api.spotify.com/v1/me', {
       headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(response => response.json())
-      .then(data => this.setState({
+    })
+    .then(response =>
+        this.setState({
         user: {
-          name: data.display_name
-        }
-      }))
+          name: response.data.display_name
+          }
+        })
+    )
+    .catch(error => {
+        alert("Could not fetch user values!");
+    });
 
-    fetch('https://api.spotify.com/v1/browse/featured-playlists', {
+    axios.get('https://api.spotify.com/v1/browse/featured-playlists', {
       headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(response => response.json())
-      .then(playlistData => {
-        let playlists = playlistData.playlists.items;
+    }).then(response => {
+        let playlists = response.data.playlists.items;
         let trackDataPromises = playlists.map(playlist => {
           let responsePromise = fetch(playlist.tracks.href, {
             headers: { 'Authorization': 'Bearer ' + accessToken }
           })
-          let trackDataPromise = responsePromise
-            .then(response => response.json())
-          return trackDataPromise
+          let trackDataPromise = responsePromise.then(response => response.json());
+          return trackDataPromise;
         })
         let allTracksDatasPromises =
           Promise.all(trackDataPromises)
@@ -238,9 +245,9 @@ class App extends Component {
                 duration: trackData ? trackData.duration_ms / 1000 : ''
               }))
           })
-          return playlists
+          return playlists;
         })
-        return playlistsPromise
+        return playlistsPromise;
       })
       .then(playlists => this.setState({
         playlists: playlists.map(item => {
@@ -251,7 +258,11 @@ class App extends Component {
           }
         })
       }))
-
+      .catch(error => {
+        this.setState({
+          playlists: []
+        });
+      });
       this.refreshPage();
   }
 
