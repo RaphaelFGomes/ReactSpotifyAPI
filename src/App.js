@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './App.css';
-import queryString from 'query-string';
 import PlaylistCounter from './components/PlaylistCounter';
 import TotalHours from './components/TotalHours';
 import Filter from './components/Filter';
@@ -94,8 +93,7 @@ class App extends Component {
       }
     }
 
-    const stringParsed = queryString.parse(window.location.search);
-    let accessToken = stringParsed.access_token;
+    let accessToken = localStorage.getItem('token');
     if (accessToken) {
       axios.get(urlFilter, {
         headers: { 'Authorization': 'Bearer ' + accessToken }
@@ -203,8 +201,14 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const stringParsed = queryString.parse(window.location.search);
-    let accessToken = stringParsed.access_token;
+    const url = window.location.hash;
+    if (url) {
+      const access_token = url.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1];
+      localStorage.setItem('token', access_token);
+      window.location.href = '/';
+    }
+
+    let accessToken = localStorage.getItem('token');
     if (!accessToken) {
       return;
     }
@@ -296,8 +300,7 @@ class App extends Component {
                   : <div style={{ color: 'red', fontWeight: 'bold', marginTop: '50px' }}>No Playlist</div>
               }
             </div> : <button onClick={() => {
-              window.location = window.location.href.includes('localhost') ? 'http://localhost:8888/login'
-                : 'https://spotifood-backend.herokuapp.com/login'
+                this.openSpotifyLogin();
             }
             }
               style={{ padding: '', fontSize: '50px', marginTop: '20px' }}>Sign in with Spotify</button>
@@ -305,6 +308,15 @@ class App extends Component {
       </div>
     );
   }
+
+  openSpotifyLogin() {
+    let url = 'https://accounts.spotify.com/authorize';
+        url += '?client_id=' + encodeURIComponent(process.env.REACT_APP_SPOTIFY_CLIENT_ID);
+        url += '&response_type=token';
+        url += '&redirect_uri=' + encodeURIComponent('http://localhost:3000');
+    window.location = url;
+  }
+
 }
 
 export default App;
