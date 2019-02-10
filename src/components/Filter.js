@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TextField from '@material-ui/core/TextField';
 import RenderField from './RenderField';
 import axios from 'axios';
+import {urlGetFilter, filterErrorMessage} from '../constants';
 
 class Filter extends Component {
     constructor(props) {
@@ -13,14 +14,14 @@ class Filter extends Component {
     }
   
     componentDidMount() {
-      axios.get('http://www.mocky.io/v2/5a25fade2e0000213aa90776')
+      axios.get(urlGetFilter)
         .then(response => {
             this.setState({
             filtersFields: response.data.filters
             })
         })
         .catch(error => {
-            alert("Could not fetch filter values!");
+            alert(filterErrorMessage);
         });
     }
   

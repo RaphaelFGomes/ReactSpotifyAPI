@@ -5,6 +5,8 @@ import TotalHours from './components/TotalHours';
 import Filter from './components/Filter';
 import Playlist from './components/Playlist';
 import axios from 'axios';
+import {urlMe, urlFeaturedPlaylists, userErrorMessage,
+  urlLocalhost, tokenLocalStorage, urlAuthorize} from './constants';
 
 let appDefaultStyle = {
   color: '#000',
@@ -42,7 +44,7 @@ class App extends Component {
       filtersTemp = this.state.filters;
     }
 
-    let urlFilter = "https://api.spotify.com/v1/browse/featured-playlists";
+    let urlFilter = urlFeaturedPlaylists;
     let hasAtLeastOne = false;
 
     if (filtersTemp.country) {
@@ -93,7 +95,7 @@ class App extends Component {
       }
     }
 
-    let accessToken = localStorage.getItem('token');
+    let accessToken = localStorage.getItem(tokenLocalStorage);
     if (accessToken) {
       axios.get(urlFilter, {
         headers: { 'Authorization': 'Bearer ' + accessToken }
@@ -204,16 +206,16 @@ class App extends Component {
     const url = window.location.hash;
     if (url) {
       const access_token = url.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1];
-      localStorage.setItem('token', access_token);
+      localStorage.setItem(tokenLocalStorage, access_token);
       window.location.href = '/';
     }
 
-    let accessToken = localStorage.getItem('token');
+    let accessToken = localStorage.getItem(tokenLocalStorage);
     if (!accessToken) {
       return;
     }
 
-    axios.get('https://api.spotify.com/v1/me', {
+    axios.get(urlMe, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     })
     .then(response =>
@@ -224,10 +226,10 @@ class App extends Component {
         })
     )
     .catch(error => {
-        alert("Could not fetch user values!");
+        alert(userErrorMessage);
     });
 
-    axios.get('https://api.spotify.com/v1/browse/featured-playlists', {
+    axios.get(urlFeaturedPlaylists, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     }).then(response => {
         let playlists = response.data.playlists.items;
@@ -310,10 +312,10 @@ class App extends Component {
   }
 
   openSpotifyLogin() {
-    let url = 'https://accounts.spotify.com/authorize';
+    let url = urlAuthorize;
         url += '?client_id=' + encodeURIComponent(process.env.REACT_APP_SPOTIFY_CLIENT_ID);
         url += '&response_type=token';
-        url += '&redirect_uri=' + encodeURIComponent('http://localhost:3000');
+        url += '&redirect_uri=' + encodeURIComponent(urlLocalhost);
     window.location = url;
   }
 
