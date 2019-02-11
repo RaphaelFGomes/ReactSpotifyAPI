@@ -7,11 +7,7 @@ import Playlist from './components/Playlist';
 import axios from 'axios';
 import {urlMe, urlFeaturedPlaylists, userErrorMessage,
   urlLocalhost, tokenLocalStorage, urlAuthorize} from './constants';
-
-let appDefaultStyle = {
-  color: '#000',
-  fontFamily: 'Papyrus'
-};
+import logo from './images/SpotifoodIcon.jpg';
 
 class App extends Component {
   localeTemp = '';
@@ -285,12 +281,8 @@ class App extends Component {
         {
           this.state.user ?
             <div>
-              <h1 style={{
-                ...appDefaultStyle,
-                fontSize: '54px',
-                marginTop: '5px'
-              }}>Spotifood</h1>
-              <h2>User logged in: {this.state.user.name}</h2>
+              <img src={logo} alt="Spotifood"></img>
+              <h2>User logged in: <span style={{color: 'green', fontWeight: 'bold'}}>{this.state.user.name}</span></h2>
               <PlaylistCounter playlists={playlistToShow} />
               <TotalHours playlists={playlistToShow} />
               <Filter onTextChange={text => this.setState({ filterString: text })}
