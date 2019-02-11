@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly with props 1`] = `
+<div
+  style={
+    Object {
+      "backgroundColor": "#808080",
+      "color": "#000",
+      "display": "inline-block",
+      "fontFamily": "Papyrus",
+      "padding": "10px",
+      "width": "25%",
+    }
+  }
+>
+  <img
+    alt="Image URL index: undefined"
+    src="https://pl.scdn.co/images/pl/default/dd52dbcce4e10a2feb519e9c282b4d3b0dcc7442"
+    style={
+      Object {
+        "width": "60px",
+      }
+    }
+  />
+  <h3
+    style={
+      Object {
+        "fontWeight": "bold",
+      }
+    }
+  >
+    Sweet Soul Chillout
+  </h3>
+  <ul
+    style={
+      Object {
+        "marginTop": "10px",
+      }
+    }
+  >
+    <li
+      key="Valentine Love (Slow Version)"
+      style={
+        Object {
+          "paddingTop": "2px",
+        }
+      }
+    >
+      Valentine Love (Slow Version)
+    </li>
+    <li
+      key="Valerie - Live At BBC Radio 1 Live Lounge, London / 2007"
+      style={
+        Object {
+          "paddingTop": "2px",
+        }
+      }
+    >
+      Valerie - Live At BBC Radio 1 Live Lounge, London / 2007
+    </li>
+    <li
+      key="Just The Way You Are"
+      style={
+        Object {
+          "paddingTop": "2px",
+        }
+      }
+    >
+      Just The Way You Are
+    </li>
+  </ul>
+</div>
+`;

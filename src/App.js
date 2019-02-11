@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
-import PlaylistCounter from './components/PlaylistCounter';
-import TotalHours from './components/TotalHours';
-import Filter from './components/Filter';
-import Playlist from './components/Playlist';
+import PlaylistCounter from './components/playlist-counter/playlist-counter';
+import TotalHours from './components/total-hours/total-hours';
+import Filter from './components/filter/filter';
+import Playlist from './components/playlist/playlist';
 import axios from 'axios';
 import { URL_ME, URL_FEATURED_PLAYLIST, USER_ERROR_MESSAGE, URL_LOCALHOST,
   TOKEN_LOCAL_STORAGE, URL_AUTHORIZE, INTERVAL } from './constants';
@@ -242,7 +242,7 @@ class App extends Component {
         })
     )
     .catch(error => {
-        alert(USER_ERROR_MESSAGE);
+        // alert(USER_ERROR_MESSAGE);
     });
 
     // Get all Feature Playlists without filter

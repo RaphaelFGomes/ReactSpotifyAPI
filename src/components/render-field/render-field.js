@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
-import SelectRenderer from './SelectRenderer';
-import {LOCALE, COUNTRY, TIMESTAMP, LIMIT, OFFSET} from '../constants';
+import SelectRenderer from '../select-renderer/select-renderer';
+import {LOCALE, COUNTRY, TIMESTAMP, LIMIT, OFFSET} from '../../constants';
 
 const RenderField = ({
   id,

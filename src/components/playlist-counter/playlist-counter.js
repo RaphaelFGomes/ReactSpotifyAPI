@@ -22,7 +22,7 @@ class PlaylistCounter extends Component {
   
       return (
         <div style={playlistCounterStyle}>
-          <h2>Number of playlists: {this.props.playlists.length}</h2>
+          <h2>Number of playlists: <span style={{color: 'blue', fontWeight: 'bold'}}>{this.props.playlists.length}</span></h2>
         </div>
       );
     }

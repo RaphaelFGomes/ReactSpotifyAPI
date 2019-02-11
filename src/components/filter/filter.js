@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import TextField from '@material-ui/core/TextField';
-import RenderField from './RenderField';
+import RenderField from '../render-field/render-field';
 import axios from 'axios';
-import {URL_GET_FILTER, FILTER_ERROR_MESSAGE} from '../constants';
+import {URL_GET_FILTER, FILTER_ERROR_MESSAGE} from '../../constants';
 
 class Filter extends Component {
     constructor(props) {
