@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+// Inline Styles
 let playCountDefaultStyle = {
     color: '#000',
     fontFamily: 'Papyrus'
@@ -14,6 +15,7 @@ let playlistCountStyle = {
     lineHeight: '30px'
   };
 
+// Method to count how many playlists are being displayed
 class PlaylistCounter extends Component {
     render() {
       let playlistCounterStyle = playlistCountStyle;

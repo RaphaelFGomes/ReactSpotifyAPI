@@ -4,7 +4,6 @@ import TextField from '@material-ui/core/TextField';
 import SelectRenderer from './SelectRenderer';
 import {LOCALE, COUNTRY, TIMESTAMP, LIMIT, OFFSET} from '../constants';
 
-
 const RenderField = ({
   id,
   name,
@@ -14,6 +13,7 @@ const RenderField = ({
   onChange,
 }) => {
   switch (id) {
+    // Case the filter is locale type, call SelectRenderer component
     case LOCALE:
       return ((
         <SelectRenderer
@@ -27,6 +27,8 @@ const RenderField = ({
           onChange={onChange}
           style={{marginBottom: '.8em'}}/>
       ));
+
+    // Case the filter is country type, call SelectRenderer component
     case COUNTRY:
       return ((
         <SelectRenderer
@@ -40,6 +42,8 @@ const RenderField = ({
           onChange={onChange}
           style={{marginBottom: '.8em'}}/>
       ));
+
+    // Case the filter is timestamp type, call TextField component (Material UI)
     case TIMESTAMP:
       return ((
         <TextField
@@ -54,6 +58,8 @@ const RenderField = ({
           onChange={onChange}
           style={{marginBottom: '.8em'}}/>
       ));
+
+    // Case the filter is limit type, call TextField component (Material UI)
     case LIMIT:
       return ((
         <TextField
@@ -70,6 +76,8 @@ const RenderField = ({
           onChange={onChange}
           style={{marginBottom: '.8em'}}/>
       ));
+
+    // Case the filter is offset type, call TextField component (Material UI)
     case OFFSET:
       return ((
         <TextField
@@ -90,6 +98,7 @@ const RenderField = ({
   }
 };
 
+// Prop types that says what type of data in each field
 RenderField.propTypes = {
   id: PropTypes.string,
   values: PropTypes.array,

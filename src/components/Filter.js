@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import TextField from '@material-ui/core/TextField';
 import RenderField from './RenderField';
 import axios from 'axios';
-import {urlGetFilter, filterErrorMessage} from '../constants';
+import {URL_GET_FILTER, FILTER_ERROR_MESSAGE} from '../constants';
 
 class Filter extends Component {
     constructor(props) {
@@ -12,26 +12,28 @@ class Filter extends Component {
         filtersFields: []
       };
     }
-  
+
+    // Method called before render the page
     componentDidMount() {
-      axios.get(urlGetFilter)
+      axios.get(URL_GET_FILTER) // Call mocky API to get the filter fields/Values
         .then(response => {
             this.setState({
             filtersFields: response.data.filters
             })
         })
         .catch(error => {
-            alert(filterErrorMessage);
+            alert(FILTER_ERROR_MESSAGE);
         });
     }
-  
+
+    // Method to render the page
     render() {
       const { filtersFields } = this.state;
       const {
         filterValues,
         onChangeFilters,
       } = this.props;
-  
+
       return (
         <div>
           {

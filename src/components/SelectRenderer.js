@@ -5,6 +5,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
+// Component to build the Select Values into a list
 const SelectRenderer = ({
   onChange,
   options,
@@ -32,6 +33,7 @@ const SelectRenderer = ({
   </FormControl>
 ));
 
+// Prop types that says what type of data in each field
 SelectRenderer.propTypes = {
   onChange: PropTypes.func,
   options: PropTypes.array,

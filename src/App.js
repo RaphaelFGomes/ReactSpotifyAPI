@@ -5,8 +5,8 @@ import TotalHours from './components/TotalHours';
 import Filter from './components/Filter';
 import Playlist from './components/Playlist';
 import axios from 'axios';
-import {urlMe, urlFeaturedPlaylists, userErrorMessage,
-  urlLocalhost, tokenLocalStorage, urlAuthorize} from './constants';
+import { URL_ME, URL_FEATURED_PLAYLIST, USER_ERROR_MESSAGE, URL_LOCALHOST,
+  TOKEN_LOCAL_STORAGE, URL_AUTHORIZE, INTERVAL } from './constants';
 import logo from './images/SpotifoodIcon.jpg';
 
 class App extends Component {
@@ -31,21 +31,80 @@ class App extends Component {
     }
   }
 
+  // Unmount cycle life
   componentWillUnmount() {
     clearInterval(this.state.intervalId);
   }
 
+  // Method to call Spotify API with filter applied
   callSpotifyPlaylistService = (filtersTemp) => {
-    if (!filtersTemp) {
+    if (!filtersTemp) { // This check is for refresh page
       filtersTemp = this.state.filters;
     }
 
-    let urlFilter = urlFeaturedPlaylists;
+    const urlFilterFinal = this.buildFilterUrl(filtersTemp);
+
+    let accessToken = localStorage.getItem(TOKEN_LOCAL_STORAGE); // Get the token from local storage
+    if (accessToken) {
+      axios.get(urlFilterFinal, { // Call the Spotify API with filter applied
+        headers: { 'Authorization': 'Bearer ' + accessToken }
+      }).then(response => {
+          if (response.data.playlists) {
+            let playlists = response.data.playlists.items;
+            let trackDataPromises = playlists.map(playlist => {
+              let responsePromise = fetch(playlist.tracks.href, {
+                headers: { 'Authorization': 'Bearer ' + accessToken }
+              })
+              let trackDataPromise = responsePromise.then(response => response.json());
+              return trackDataPromise;
+            })
+            let allTracksDatasPromises = Promise.all(trackDataPromises); // The method to run many promises in parallel and wait till all of them are ready.
+            let playlistsPromise = allTracksDatasPromises.then(trackDatas => {
+              trackDatas.forEach((trackData, i) => {
+                playlists[i].trackDatas = trackData.items
+                  .map(item => item.track)
+                  .map(trackData => ({
+                    name: trackData ? trackData.name : '',
+                    duration: trackData ? trackData.duration_ms / 1000 : ''
+                  }))
+              })
+              return playlists;
+            })
+            return playlistsPromise;
+          } else {
+            return [];
+          }
+        }).then(playlists => {
+          if (playlists) {
+            this.setState({
+              playlists: playlists.map(item => {
+                return {
+                  name: item.name,
+                  imageUrl: item.images[0].url,
+                  songs: item.trackDatas.slice(0, 3)
+                }
+              })
+            })
+          } else {
+            return [];
+          }
+        })
+        .catch(error => {
+          this.setState({
+            playlists: []
+          });
+      });
+     }
+  }
+
+   // Method to build the filter url for spotify api
+  buildFilterUrl(filtersTemp) {
+    let urlFilter = URL_FEATURED_PLAYLIST;
     let hasAtLeastOne = false;
 
     if (filtersTemp.country) {
       let ctry = "";
-      if (filtersTemp.country === "en_US") {
+      if (filtersTemp.country === "en_US") { // This is a bug in mocky API
         ctry = "US";
       } else {
         ctry = filtersTemp.country;
@@ -90,68 +149,18 @@ class App extends Component {
         urlFilter = urlFilter + "?offset=" + filtersTemp.offset;
       }
     }
-
-    let accessToken = localStorage.getItem(tokenLocalStorage);
-    if (accessToken) {
-      axios.get(urlFilter, {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      }).then(response => {
-          if (response.data.playlists) {
-            let playlists = response.data.playlists.items;
-            let trackDataPromises = playlists.map(playlist => {
-              let responsePromise = fetch(playlist.tracks.href, {
-                headers: { 'Authorization': 'Bearer ' + accessToken }
-              })
-              let trackDataPromise = responsePromise.then(response => response.json());
-              return trackDataPromise;
-            })
-            let allTracksDatasPromises =
-              Promise.all(trackDataPromises)
-            let playlistsPromise = allTracksDatasPromises.then(trackDatas => {
-              trackDatas.forEach((trackData, i) => {
-                playlists[i].trackDatas = trackData.items
-                  .map(item => item.track)
-                  .map(trackData => ({
-                    name: trackData ? trackData.name : '',
-                    duration: trackData ? trackData.duration_ms / 1000 : ''
-                  }))
-              })
-              return playlists;
-            })
-            return playlistsPromise;
-          } else {
-            return [];
-          }
-        }).then(playlists => {
-          if (playlists) {
-            this.setState({
-              playlists: playlists.map(item => {
-                return {
-                  name: item.name,
-                  imageUrl: item.images[0].url,
-                  songs: item.trackDatas.slice(0, 3)
-                }
-              })
-            })
-          } else {
-            return [];
-          }
-        })
-        .catch(error => {
-          this.setState({
-            playlists: []
-          });
-      });
-     }
+    return urlFilter;
   }
 
+  // Method to refresh page after 30 seconds
   refreshPage = () => {
-    const intervalId = setInterval(this.callSpotifyPlaylistService, 30000);
+    const intervalId = setInterval(this.callSpotifyPlaylistService, INTERVAL);
     this.setState({
       intervalId,
     });
   }
 
+  // Method called when the user change some information on filter
   filterList = (event) => {
     const field = {
       [event.target.name]: event.target.value,
@@ -198,20 +207,31 @@ class App extends Component {
     this.callSpotifyPlaylistService(filtersTemp);
   }
 
-  componentDidMount() {
-    const url = window.location.hash;
-    if (url) {
-      const access_token = url.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1];
-      localStorage.setItem(tokenLocalStorage, access_token);
-      window.location.href = '/';
+  // Method to call Spotify Login in case the user is not logged already
+  openSpotifyLogin() {
+      let url = URL_AUTHORIZE;
+          url += '?client_id=' + encodeURIComponent(process.env.REACT_APP_SPOTIFY_CLIENT_ID);
+          url += '&response_type=token';
+          url += '&redirect_uri=' + encodeURIComponent(URL_LOCALHOST);
+      window.location = url;
     }
 
-    let accessToken = localStorage.getItem(tokenLocalStorage);
+  // Method called before Render the page
+  componentDidMount() {
+    const url = window.location.hash;
+    if (url) { // Check if the access token is on url
+      const access_token = url.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1]; // Get only the access token from url
+      localStorage.setItem(TOKEN_LOCAL_STORAGE, access_token); // Save the token on local storage
+      window.location.href = '/'; // Clean the URL to not be exposed to user (access token)
+    }
+
+    let accessToken = localStorage.getItem(TOKEN_LOCAL_STORAGE); // Check if already have a token into local storage
     if (!accessToken) {
       return;
     }
 
-    axios.get(urlMe, {
+    // Call this API to get user name information
+    axios.get(URL_ME, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     })
     .then(response =>
@@ -222,10 +242,11 @@ class App extends Component {
         })
     )
     .catch(error => {
-        alert(userErrorMessage);
+        alert(USER_ERROR_MESSAGE);
     });
 
-    axios.get(urlFeaturedPlaylists, {
+    // Get all Feature Playlists without filter
+    axios.get(URL_FEATURED_PLAYLIST, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     }).then(response => {
         let playlists = response.data.playlists.items;
@@ -236,8 +257,7 @@ class App extends Component {
           let trackDataPromise = responsePromise.then(response => response.json());
           return trackDataPromise;
         })
-        let allTracksDatasPromises =
-          Promise.all(trackDataPromises)
+        let allTracksDatasPromises = Promise.all(trackDataPromises); // The method to run many promises in parallel and wait till all of them are ready.
         let playlistsPromise = allTracksDatasPromises.then(trackDatas => {
           trackDatas.forEach((trackData, i) => {
             playlists[i].trackDatas = trackData.items
@@ -268,12 +288,15 @@ class App extends Component {
       this.refreshPage();
   }
 
+  // Method to render the page
   render() {
+    // If there is no user and playlist, return empty array
     let playlistToShow = this.state.user && this.state.playlists ?
       this.state.playlists.filter(playlist => {
-        let matchesPlaylist = playlist.name.toLowerCase().includes(
-          this.state.filterString.toLocaleLowerCase())
-        return matchesPlaylist
+        // Here I apply the filter for Playlist name
+        let matchesPlaylist = playlist.name.toLowerCase().
+        includes(this.state.filterString.toLocaleLowerCase());
+        return matchesPlaylist;
       }) : []
 
     return (
@@ -301,14 +324,6 @@ class App extends Component {
         }
       </div>
     );
-  }
-
-  openSpotifyLogin() {
-    let url = urlAuthorize;
-        url += '?client_id=' + encodeURIComponent(process.env.REACT_APP_SPOTIFY_CLIENT_ID);
-        url += '&response_type=token';
-        url += '&redirect_uri=' + encodeURIComponent(urlLocalhost);
-    window.location = url;
   }
 
 }

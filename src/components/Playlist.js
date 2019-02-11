@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 
+// Inline Styles
 let playlistDefaultStyle = {
     color: '#000',
     fontFamily: 'Papyrus'
   };
 
+// Method that builds the playlist and shows the data
 class Playlist extends Component {
     render() {
       let playlist = this.props.playlist;
