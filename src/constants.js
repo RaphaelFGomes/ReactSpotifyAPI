@@ -9,7 +9,7 @@ export const TOKEN_LOCAL_STORAGE = 'token';
 export const INTERVAL = 30000;
 
 //Filter
-export const URL_GET_FILTER = 'http://www.mocky.io/v2/5a25fade2e0000213aa90776';
+export const URL_GET_FILTER = 'https://www.mocky.io/v2/5a25fade2e0000213aa90776';
 export const FILTER_ERROR_MESSAGE = 'Could not fetch filter values!';
 
 //RenderField
