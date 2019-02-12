@@ -93,11 +93,11 @@ class App extends Component {
             return [];
           }
         })
-      //   .catch(error => {
-      //     this.setState({
-      //       playlists: []
-      //     });
-      // });
+        .catch(error => {
+          this.setState({
+            playlists: []
+          });
+      });
      }
   }
 
@@ -260,11 +260,13 @@ class App extends Component {
           let responsePromise = axios.get(playlist.tracks.href, {
             headers: { 'Authorization': 'Bearer ' + accessToken }
           })
+          console.log("here6", responsePromise);
           let trackDataPromise = responsePromise.then(response => response.json());
+          console.log("here7", trackDataPromise);
           return trackDataPromise;
         })
-        let allTracksDatasPromises =
-          Promise.all(trackDataPromises) // The method to run many promises in parallel and wait till all of them are ready.
+        let allTracksDatasPromises = Promise.all(trackDataPromises); // The method to run many promises in parallel and wait till all of them are ready.
+        console.log("here8", allTracksDatasPromises);
         let playlistsPromise = allTracksDatasPromises.then(trackDatas => {
           trackDatas.forEach((trackData, i) => {
             playlists[i].trackDatas = trackData.items
@@ -274,8 +276,10 @@ class App extends Component {
                 duration: trackData ? trackData.duration_ms / 1000 : ''
               }))
           })
+          console.log("here9", playlists);
           return playlists;
         })
+        console.log("here10", playlistsPromise);
         return playlistsPromise;
       })
       .then(playlists => this.setState({
@@ -287,11 +291,11 @@ class App extends Component {
           }
         })
       }))
-      // .catch(error => {
-      //   this.setState({
-      //     playlists: []
-      //   });
-      // });
+      .catch(error => {
+        this.setState({
+          playlists: []
+        });
+      });
       this.refreshPage();
   }
 
