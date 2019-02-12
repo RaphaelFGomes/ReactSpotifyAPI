@@ -18,7 +18,7 @@ let totalHoursStyle = {
 // Component that counts how many hours of songs has in all playlists being displayed
 class TotalHours extends Component {
     render() {
-      let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => { //Get all songs of all Playlists
+      let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => { // Get all songs of all Playlists
         return songs.concat(eachPlaylist.songs)
       }, []);
   
