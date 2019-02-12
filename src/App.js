@@ -61,8 +61,7 @@ class App extends Component {
               let trackDataPromise = responsePromise.then(response => response.json());
               return trackDataPromise;
             })
-            let allTracksDatasPromises =
-                Promise.all(trackDataPromises) // The method to run many promises in parallel, wait still all of them are ready and they shoulb be in the same order that came in the playlist array.
+            let allTracksDatasPromises = Promise.all(trackDataPromises) // The method to run many promises in parallel, wait still all of them are ready and they shoulb be in the same order that came in the playlist array.
             let playlistsPromise = allTracksDatasPromises.then(trackDatas => {
               trackDatas.forEach((trackData, i) => {
                 playlists[i].trackDatas = trackData.items
