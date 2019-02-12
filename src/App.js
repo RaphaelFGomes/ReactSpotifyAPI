@@ -5,7 +5,7 @@ import TotalHours from './components/total-hours/total-hours';
 import Filter from './components/filter/filter';
 import Playlist from './components/playlist/playlist';
 import axios from 'axios';
-import { URL_ME, URL_FEATURED_PLAYLIST, USER_ERROR_MESSAGE, URL_LOCALHOST,
+import { URL_ME, URL_FEATURED_PLAYLIST, USER_ERROR_MESSAGE, URL_HEROKU,
   TOKEN_LOCAL_STORAGE, URL_AUTHORIZE, INTERVAL } from './constants';
 import logo from './images/SpotifoodIcon.jpg';
 
@@ -212,7 +212,7 @@ class App extends Component {
       let url = URL_AUTHORIZE;
           url += '?client_id=' + encodeURIComponent(process.env.REACT_APP_SPOTIFY_CLIENT_ID);
           url += '&response_type=token';
-          url += '&redirect_uri=' + encodeURIComponent(URL_LOCALHOST);
+          url += '&redirect_uri=' + encodeURIComponent(URL_HEROKU);
       window.location = url;
     }
 
