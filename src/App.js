@@ -46,10 +46,13 @@ class App extends Component {
 
     let accessToken = localStorage.getItem(TOKEN_LOCAL_STORAGE); // Get the token from local storage
     if (accessToken) {
+      console.log("here1", urlFilterFinal);
       axios.get(urlFilterFinal, { // Call the Spotify API with filter applied
         headers: { 'Authorization': 'Bearer ' + accessToken }
       }).then(response => {
+        console.log("here2", response);
           if (response.data.playlists) {
+            console.log("here3", response.data.playlists);
             let playlists = response.data.playlists.items;
             let trackDataPromises = playlists.map(playlist => {
               let responsePromise = axios.get(playlist.tracks.href, {
@@ -250,8 +253,10 @@ class App extends Component {
     axios.get(URL_FEATURED_PLAYLIST, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     }).then(response => {
+      console.log("here4", response);
         let playlists = response.data.playlists.items;
         let trackDataPromises = playlists.map(playlist => {
+          console.log("here5", playlist);
           let responsePromise = axios.get(playlist.tracks.href, {
             headers: { 'Authorization': 'Bearer ' + accessToken }
           })
