@@ -90,11 +90,11 @@ class App extends Component {
             return [];
           }
         })
-        .catch(error => {
-          this.setState({
-            playlists: []
-          });
-      });
+      //   .catch(error => {
+      //     this.setState({
+      //       playlists: []
+      //     });
+      // });
      }
   }
 
@@ -282,11 +282,11 @@ class App extends Component {
           }
         })
       }))
-      .catch(error => {
-        this.setState({
-          playlists: []
-        });
-      });
+      // .catch(error => {
+      //   this.setState({
+      //     playlists: []
+      //   });
+      // });
       this.refreshPage();
   }
 
