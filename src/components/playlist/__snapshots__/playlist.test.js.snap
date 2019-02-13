@@ -39,34 +39,40 @@ exports[`should render correctly with props 1`] = `
     }
   >
     <li
-      key="Valentine Love (Slow Version)"
       style={
         Object {
           "paddingTop": "2px",
         }
       }
     >
-      Valentine Love (Slow Version)
+      <span
+        style={
+          Object {
+            "fontWeight": "bold",
+          }
+        }
+      >
+        Owner: 
+      </span>
+      Spotify
     </li>
     <li
-      key="Valerie - Live At BBC Radio 1 Live Lounge, London / 2007"
       style={
         Object {
           "paddingTop": "2px",
         }
       }
     >
-      Valerie - Live At BBC Radio 1 Live Lounge, London / 2007
-    </li>
-    <li
-      key="Just The Way You Are"
-      style={
-        Object {
-          "paddingTop": "2px",
+      <span
+        style={
+          Object {
+            "fontWeight": "bold",
+          }
         }
-      }
-    >
-      Just The Way You Are
+      >
+        Total of tracks: 
+      </span>
+      36
     </li>
   </ul>
 </div>

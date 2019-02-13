@@ -26,7 +26,7 @@ The overall structure of the project is as follows:
 * /components/playlist-counter (Component responsible for showing the number of playlists being displayed)
 * /components/render-field (Component responsible for rendering filter fields)
 * /components/select-renderer (Component responsible for building a select element)
-* /components/total-hours (Component responsible for counting the total hours of songs of all playlists being displayed)
+* /components/total-tracks (Component responsible for counting the total of tracks from all playlists being displayed)
 * /images (Component containing the main logo image)
 * constants.js (Where the constants used in the app are separated)
 * App.js (Application main class)

@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import './App.css';
 import PlaylistCounter from './components/playlist-counter/playlist-counter';
-import TotalHours from './components/total-hours/total-hours';
+import TotalTracks from './components/total-tracks/total-tracks';
 import Filter from './components/filter/filter';
 import Playlist from './components/playlist/playlist';
-import axios from 'axios';
-import { URL_ME, URL_FEATURED_PLAYLIST, USER_ERROR_MESSAGE, URL_HEROKU,
-  TOKEN_LOCAL_STORAGE, URL_AUTHORIZE, INTERVAL } from './constants';
+import { URL_ME, URL_FEATURED_PLAYLIST, URL_HEROKU,
+  TOKEN_LOCAL_STORAGE, URL_AUTHORIZE, INTERVAL, SPOTIFY_API_ERROR_MESSAGE } from './constants';
 import logo from './images/SpotifoodIcon.jpg';
+import Axios from 'axios';
 
 class App extends Component {
   localeTemp = '';
@@ -46,57 +46,33 @@ class App extends Component {
 
     let accessToken = localStorage.getItem(TOKEN_LOCAL_STORAGE); // Get the token from local storage
     if (accessToken) {
-      console.log("here1", urlFilterFinal);
-      axios.get(urlFilterFinal, { // Call the Spotify API with filter applied
+      Axios.get(urlFilterFinal, {
         headers: { 'Authorization': 'Bearer ' + accessToken }
-      }).then(response => {
-        console.log("here2", response);
-          if (response.data.playlists) {
-            console.log("here3", response.data.playlists);
-            let playlists = response.data.playlists.items;
-            let trackDataPromises = playlists.map(playlist => {
-              let responsePromise = axios.get(playlist.tracks.href, {
-                headers: { 'Authorization': 'Bearer ' + accessToken }
-              })
-              let trackDataPromise = responsePromise.then(response => response.json());
-              return trackDataPromise;
-            })
-            let allTracksDatasPromises = Promise.all(trackDataPromises) // The method to run many promises in parallel, wait still all of them are ready and they shoulb be in the same order that came in the playlist array.
-            let playlistsPromise = allTracksDatasPromises.then(trackDatas => {
-              trackDatas.forEach((trackData, i) => {
-                playlists[i].trackDatas = trackData.items
-                  .map(item => item.track)
-                  .map(trackData => ({
-                    name: trackData ? trackData.name : '',
-                    duration: trackData ? trackData.duration_ms / 1000 : ''
-                  }))
-              })
-              return playlists;
-            })
-            return playlistsPromise;
-          } else {
-            return [];
-          }
-        }).then(playlists => {
-          if (playlists) {
+      }).then(playlistData => {
+          if (!playlistData.error) {
+          let playlists = playlistData.data.playlists.items;
             this.setState({
               playlists: playlists.map(item => {
                 return {
                   name: item.name,
                   imageUrl: item.images[0].url,
-                  songs: item.trackDatas.slice(0, 3)
+                  numberOfTracks: item.tracks.total,
+                  owner: item.owner.display_name
                 }
               })
             })
           } else {
-            return [];
+            this.setState({
+              playlists: []
+            })
           }
         })
         .catch(error => {
           this.setState({
-            playlists: []
-          });
-      });
+              playlists: []
+            })
+             console.log(SPOTIFY_API_ERROR_MESSAGE, error)
+        });
      }
   }
 
@@ -234,10 +210,9 @@ class App extends Component {
     }
 
     // Call this API to get user name information
-    axios.get(URL_ME, {
+    Axios.get(URL_ME, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
-    })
-    .then(response =>
+    }).then(response =>
         this.setState({
         user: {
           name: response.data.display_name
@@ -245,56 +220,32 @@ class App extends Component {
         })
     )
     .catch(error => {
-        // alert(USER_ERROR_MESSAGE);
+        console.log(SPOTIFY_API_ERROR_MESSAGE, error)
     });
 
     // Get all Feature Playlists without filter
-    axios.get(URL_FEATURED_PLAYLIST, {
+    Axios.get(URL_FEATURED_PLAYLIST, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(response => {
-      console.log("here4", response);
-        let playlists = response.data.playlists.items;
-        let trackDataPromises = playlists.map(playlist => {
-          console.log("here5", playlist);
-          let responsePromise = axios.get(playlist.tracks.href, {
-            headers: { 'Authorization': 'Bearer ' + accessToken }
+    }).then(playlistData => {
+        let playlists = playlistData.data.playlists.items;
+          this.setState({
+            playlists: playlists.map(item => {
+              return {
+                name: item.name,
+                imageUrl: item.images[0].url,
+                numberOfTracks: item.tracks.total,
+                owner: item.owner.display_name
+              }
+            })
           })
-          console.log("here6", responsePromise);
-          let trackDataPromise = responsePromise.then(response => response.json());
-          console.log("here7", trackDataPromise);
-          return trackDataPromise;
-        })
-        let allTracksDatasPromises = Promise.all(trackDataPromises); // The method to run many promises in parallel and wait till all of them are ready.
-        console.log("here8", allTracksDatasPromises);
-        let playlistsPromise = allTracksDatasPromises.then(trackDatas => {
-          trackDatas.forEach((trackData, i) => {
-            playlists[i].trackDatas = trackData.items
-              .map(item => item.track)
-              .map(trackData => ({
-                name: trackData ? trackData.name : '',
-                duration: trackData ? trackData.duration_ms / 1000 : ''
-              }))
-          })
-          console.log("here9", playlists);
-          return playlists;
-        })
-        console.log("here10", playlistsPromise);
-        return playlistsPromise;
       })
-      .then(playlists => this.setState({
-        playlists: playlists.map(item => {
-          return {
-            name: item.name,
-            imageUrl: item.images[0].url,
-            songs: item.trackDatas.slice(0, 3)
-          }
-        })
-      }))
       .catch(error => {
         this.setState({
           playlists: []
-        });
+        })
+           console.log(SPOTIFY_API_ERROR_MESSAGE, error)
       });
+
       this.refreshPage();
   }
 
@@ -304,8 +255,8 @@ class App extends Component {
     let playlistToShow = this.state.user && this.state.playlists ?
       this.state.playlists.filter(playlist => {
         // Here I apply the filter for Playlist name
-        let matchesPlaylist = playlist.name.toLowerCase().
-        includes(this.state.filterString.toLocaleLowerCase());
+        let matchesPlaylist = playlist.name.toLowerCase()
+        .includes(this.state.filterString.toLocaleLowerCase());
         return matchesPlaylist;
       }) : []
 
@@ -317,7 +268,7 @@ class App extends Component {
               <img src={logo} alt="Spotifood"></img>
               <h2>User logged in: <span style={{color: 'green', fontWeight: 'bold'}}>{this.state.user.name}</span></h2>
               <PlaylistCounter playlists={playlistToShow} />
-              <TotalHours playlists={playlistToShow} />
+              <TotalTracks playlists={playlistToShow} />
               <Filter onTextChange={text => this.setState({ filterString: text })}
                 onChangeFilters={this.filterList}
                 filterValues={this.state.filters} />

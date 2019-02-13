@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import TextField from '@material-ui/core/TextField';
 import RenderField from '../render-field/render-field';
 import axios from 'axios';
-import {URL_GET_FILTER, FILTER_ERROR_MESSAGE} from '../../constants';
+import {URL_GET_FILTER, MOCKY_API_ERROR_MESSAGE} from '../../constants';
 
 class Filter extends Component {
     constructor(props) {
@@ -22,7 +22,7 @@ class Filter extends Component {
             })
         })
         .catch(error => {
-            alert(FILTER_ERROR_MESSAGE);
+            console.log(MOCKY_API_ERROR_MESSAGE, error)
         });
     }
 

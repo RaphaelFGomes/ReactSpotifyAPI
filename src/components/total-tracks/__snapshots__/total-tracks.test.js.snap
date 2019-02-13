@@ -16,8 +16,8 @@ exports[`should render correctly with props 1`] = `
   }
 >
   <h2>
-    Total of hours: 
-    153
+    Number of tracks in all Playlists: 
+    1375
   </h2>
 </div>
 `;

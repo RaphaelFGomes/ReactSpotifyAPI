@@ -21,10 +21,8 @@ class Playlist extends Component {
           <img src={playlist.imageUrl} alt={"Image URL index: " + this.props.index} style={{ width: '60px' }} />
           <h3 style={{ fontWeight: 'bold' }}>{playlist.name}</h3>
           <ul style={{ marginTop: '10px' }}>
-            {
-              playlist.songs.map(song =>
-                <li key={song.name} style={{ paddingTop: '2px' }}>{song.name}</li>
-              )}
+              <li style={{ paddingTop: '2px' }}><span style={{fontWeight: 'bold'}}>Owner: </span>{playlist.owner}</li>
+              <li style={{ paddingTop: '2px' }}><span style={{fontWeight: 'bold'}}>Total of tracks: </span>{playlist.numberOfTracks}</li>
           </ul>
         </div>
       );
