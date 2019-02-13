@@ -4,8 +4,8 @@ import PlaylistCounter from './components/playlist-counter/playlist-counter';
 import TotalTracks from './components/total-tracks/total-tracks';
 import Filter from './components/filter/filter';
 import Playlist from './components/playlist/playlist';
-import { URL_ME, URL_FEATURED_PLAYLIST, URL_HEROKU,
-  TOKEN_LOCAL_STORAGE, URL_AUTHORIZE, INTERVAL, SPOTIFY_API_ERROR_MESSAGE } from './constants';
+import { URL_ME, URL_FEATURED_PLAYLIST, URL_HEROKU, TOKEN_LOCAL_STORAGE,
+  URL_AUTHORIZE, INTERVAL, SPOTIFY_API_ERROR_MESSAGE } from './constants';
 import logo from './images/SpotifoodIcon.jpg';
 import Axios from 'axios';
 
@@ -42,37 +42,13 @@ class App extends Component {
       filtersTemp = this.state.filters;
     }
 
-    const urlFilterFinal = this.buildFilterUrl(filtersTemp);
-
     let accessToken = localStorage.getItem(TOKEN_LOCAL_STORAGE); // Get the token from local storage
     if (accessToken) {
-      Axios.get(urlFilterFinal, {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      }).then(playlistData => {
-          if (!playlistData.error) {
-          let playlists = playlistData.data.playlists.items;
-            this.setState({
-              playlists: playlists.map(item => {
-                return {
-                  name: item.name,
-                  imageUrl: item.images[0].url,
-                  numberOfTracks: item.tracks.total,
-                  owner: item.owner.display_name
-                }
-              })
-            })
-          } else {
-            this.setState({
-              playlists: []
-            })
-          }
-        })
-        .catch(error => {
-          this.setState({
-              playlists: []
-            })
-             console.log(SPOTIFY_API_ERROR_MESSAGE, error)
-        });
+      // Mount the url filter
+      const urlFilterFinal = this.buildFilterUrl(filtersTemp);
+
+      // Get the new Playlist using the filter fields
+      this.getPlaylistFromSpotify(urlFilterFinal, accessToken);
      }
   }
 
@@ -193,7 +169,52 @@ class App extends Component {
           url += '&response_type=token';
           url += '&redirect_uri=' + encodeURIComponent(URL_HEROKU);
       window.location = url;
-    }
+  }
+
+  getUserNameInformationFromSpotify(accessToken) {
+    Axios.get(URL_ME, {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    }).then(response =>
+        this.setState({
+        user: {
+          name: response.data.display_name
+          }
+        })
+    )
+    .catch(error => {
+        console.log(SPOTIFY_API_ERROR_MESSAGE, error)
+    });
+  }
+
+  getPlaylistFromSpotify(url, accessToken) {
+    Axios.get(url, {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    }).then(playlistData => {
+        if (!playlistData.error) {
+        let playlists = playlistData.data.playlists.items;
+          this.setState({
+            playlists: playlists.map(item => {
+              return {
+                name: item.name,
+                imageUrl: item.images[0].url,
+                numberOfTracks: item.tracks.total,
+                owner: item.owner.display_name
+              }
+            })
+          })
+        } else {
+          this.setState({
+            playlists: []
+          })
+        }
+      })
+      .catch(error => {
+        this.setState({
+            playlists: []
+          })
+           console.log(SPOTIFY_API_ERROR_MESSAGE, error)
+      });
+  }
 
   // Method called before Render the page
   componentDidMount() {
@@ -210,43 +231,13 @@ class App extends Component {
     }
 
     // Call this API to get user name information
-    Axios.get(URL_ME, {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(response =>
-        this.setState({
-        user: {
-          name: response.data.display_name
-          }
-        })
-    )
-    .catch(error => {
-        console.log(SPOTIFY_API_ERROR_MESSAGE, error)
-    });
+    this.getUserNameInformationFromSpotify(accessToken);
 
     // Get all Feature Playlists without filter
-    Axios.get(URL_FEATURED_PLAYLIST, {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(playlistData => {
-        let playlists = playlistData.data.playlists.items;
-          this.setState({
-            playlists: playlists.map(item => {
-              return {
-                name: item.name,
-                imageUrl: item.images[0].url,
-                numberOfTracks: item.tracks.total,
-                owner: item.owner.display_name
-              }
-            })
-          })
-      })
-      .catch(error => {
-        this.setState({
-          playlists: []
-        })
-           console.log(SPOTIFY_API_ERROR_MESSAGE, error)
-      });
+    this.getPlaylistFromSpotify(URL_FEATURED_PLAYLIST, accessToken);
 
-      this.refreshPage();
+    // Start the an interval of 30 seconds to refresh the playlist
+    this.refreshPage();
   }
 
   // Method to render the page
