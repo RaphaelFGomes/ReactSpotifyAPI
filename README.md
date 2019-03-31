@@ -1,5 +1,5 @@
-# Spotifood
-This is a React project for iFood Frontend Test
+# React Spotify API
+This is a React project for access Spotify API
 
 ## Aplication
 The application consists of showing the featured playlists of Spotify through some optional filters.
